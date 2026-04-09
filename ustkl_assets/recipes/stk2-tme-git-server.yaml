@@ -1,5 +1,5 @@
 recipe:
-  name: STK2 Tyre Mod Edition (git)
+  name: STK2 Tyre Mod Edition (server only) (git)
   stk-version: 3
 
 assets:
@@ -15,4 +15,4 @@ code:
   branch: tyre2X
   patch: none
   updatable: yes
-  cmake_options: -DCMAKE_BUILD_TYPE=RelWithDebInfo -DNO_SHADERC=ON
+  cmake_options: -DSERVER_ONLY=ON -DUSE_SQLITE3=ON -DWEB_SUPPORT=ON -DUSE_RECORDS_V2=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
