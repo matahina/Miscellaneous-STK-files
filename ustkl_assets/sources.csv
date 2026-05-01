@@ -1,6 +1,7 @@
 id,version,name,stk_version,powerup,kart_characteristics
 standard,1.4,orig,1,https://raw.githubusercontent.com/supertuxkart/stk-code/refs/tags/1.4/data/powerup.xml,https://raw.githubusercontent.com/supertuxkart/stk-code/refs/tags/1.4/data/kart_characteristics.xml
-random (mimiz),1,random,1,https://stk.kimden.online/public/powerup_mimiz.xml,standard
+random (mimiz),1,random,1,https://freethewhale.ovh/powerup_mimiz.xml,standard
+rebalanced (mimiz) v3,4,rebalanced4,1,https://freethewhale.ovh/rebalanced.xml,standard
 rebalanced (mimiz) v3,3,rebalanced3,1,https://stk.kimden.online/public/rebalanced.xml,standard
 rebalanced (mimiz) v2,2,rebalanced2,1,https://stk.kimden.online/public/rebalanced_previous.xml,standard
 rebalanced (mimiz) v1,1,rebalanced1,1,https://stk.kimden.online/public/rebalanced_previous2.xml,standard
