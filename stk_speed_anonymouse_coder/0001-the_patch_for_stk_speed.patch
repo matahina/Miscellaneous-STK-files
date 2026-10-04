@@ -1,55 +1,53 @@
-# STK Speed Mod (by anonymouse_coder)
-# Cleaned/rebased for official SuperTuxKart master ba318975346939b2910f9d435a5bf9c377447f8b
-# Historical permission-only changes removed.
-# Obsolete CMake and <cstdint> compatibility patches are no longer needed.
-
 diff --git a/src/items/powerup.cpp b/src/items/powerup.cpp
 --- a/src/items/powerup.cpp
 +++ b/src/items/powerup.cpp
-@@ -62,7 +62,7 @@ Powerup::Powerup(AbstractKart *kart)
-     m_owner = kart;
-     m_number = 0;
-     m_sound_use = NULL;
+@@ -62,7 +62,7 @@ Powerup::~Powerup()
+  */
+ void Powerup::reset()
+ {
 -    m_type = PowerupManager::POWERUP_NOTHING;
 +    m_type = PowerupManager::POWERUP_ZIPPER;//POWERUP_NOTHING;
-     m_look_back = false;
-     m_sound_delete_ticks = -1;
-     m_force_sound = false;
-@@ -491,7 +491,7 @@ void Powerup::reset()
-     if (m_number == 0)
+     m_number = 0;
+
+     // Ghost kart will update powerup every frame
+@@ -495,7 +495,7 @@ void Powerup::use()
+     if ( m_number <= 0 )
      {
          m_number = 0;
 -        m_type   = PowerupManager::POWERUP_NOTHING;
 +        m_type   = PowerupManager::POWERUP_ZIPPER;//POWERUP_NOTHING;
-         return;
      }
-     m_number--;
+ }   // use
 
 diff --git a/src/karts/kart.cpp b/src/karts/kart.cpp
 --- a/src/karts/kart.cpp
 +++ b/src/karts/kart.cpp
-@@ -377,7 +377,7 @@ void Kart::reset()
-     m_time_last_crash       = -999.0f;
-     m_time_last_ground      = 0.0f;
-     m_time_last_landed      = 0.0f;
+@@ -373,7 +373,7 @@ void Kart::reset()
+     m_invulnerable_ticks   = 0;
+     m_min_nitro_ticks      = 0;
+     m_energy_to_min_ratio  = 0;
 -    m_collected_energy     = 0;
 +    m_collected_energy     = 1;
-     m_finished_race         = false;
-     m_finish_time           = 0.0f;
-     m_has_started           = false;
-@@ -1608,11 +1608,11 @@ void Kart::update(float dt)
-         // Rescue a kart if it hasn't moved for a while
-         // -------------------------------------------------------
+     m_bounce_back_ticks    = 0;
+     m_brake_ticks          = 0;
+     m_ticks_last_crash     = 0;
+@@ -1597,11 +1597,11 @@ void Kart::update(int ticks)
+         const float roll = quad_normal.angle
+                ((Vec3(0, 1, 0).rotate(q.getAxis(), q.getAngle())));
+
 -        if (Track::getCurrentTrack()->isAutoRescueEnabled() &&
 +        if (/*Track::getCurrentTrack()->isAutoRescueEnabled() &&
-             fabs(getSpeed()) < 3.0f)
+             (!m_terrain_info->getMaterial() ||
+             !m_terrain_info->getMaterial()->hasGravity()) &&
+             !has_animation_before && fabs(roll) > 60 * DEGREE_TO_RAD &&
+-            fabs(getSpeed()) < 3.0f)
 +            fabs(getSpeed()) < 3.0f*/false)
          {
-             m_time_last_crash += dt;
-             if (m_time_last_crash > 2.0f)
-@@ -1702,8 +1702,8 @@ void Kart::update(float dt)
-         const Vec3 *min = &(Track::getCurrentTrack()->getAABBMin());
-         float dist_to_sector = getDistanceToCenter();
+             RescueAnimation::create(this, /*is_auto_rescue*/true);
+             m_last_factor_engine_sound = 0.0f;
+@@ -1691,8 +1691,8 @@ void Kart::update(int ticks)
+         const Vec3 *min, *max;
+         Track::getCurrentTrack()->getAABB(&min, &max);
 
 -        if((min->getY() - getXYZ().getY() > 17 || dist_to_sector > 25) && !m_flying &&
 -           !has_animation_before)
@@ -57,87 +55,108 @@ diff --git a/src/karts/kart.cpp b/src/karts/kart.cpp
 +           !has_animation_before*/false)
          {
              RescueAnimation::create(this);
-             has_animation_before = true;
-@@ -1711,7 +1711,7 @@ void Kart::update(float dt)
-         const Material *material = getMaterial();
-         if (material)
+             m_last_factor_engine_sound = 0.0f;
+@@ -1700,7 +1700,7 @@ void Kart::update(int ticks)
+     }
+     else
+     {
+-        if (!has_animation_before && material->isDriveReset() && isOnGround())
++        if (false && !has_animation_before && material->isDriveReset() && isOnGround())
          {
--            if (!has_animation_before && material->isDriveReset() && isOnGround())
-+            if (false && !has_animation_before && material->isDriveReset() && isOnGround())
-             {
-                 RescueAnimation::create(this);
-                 has_animation_before = true;
-@@ -2207,7 +2207,7 @@ void Kart::handleZipper(bool play_sound)
-         if (m_kart_properties->getZipperTime() > 0)
-         {
+             RescueAnimation::create(this);
+             m_last_factor_engine_sound = 0.0f;
+@@ -2195,7 +2195,7 @@ void Kart::handleZipper(const Material *material, bool play_sound)
+         if(duration<0)
+             duration           = m_kart_properties->getZipperDuration();
+         if(speed_gain<0)
 -            speed_gain         = m_kart_properties->getZipperSpeedGain();
 +            speed_gain         = m_kart_properties->getZipperSpeedGain()*16;
-             engine_force      = m_kart_properties->getZipperForce();
-             duration          = m_kart_properties->getZipperTime();
-             fade_out_time     = m_kart_properties->getZipperFadeOutTime();
-@@ -2445,7 +2445,7 @@ void Kart::crashed(const Material *m)
-     if (m)
-     {
+         if(fade_out_time<0)
+             fade_out_time      = m_kart_properties->getZipperFadeOutTime();
+         if(engine_force<0)
+@@ -2433,7 +2433,7 @@ void Kart::crashed(const Material *m, const Vec3 &normal)
+             }
+         }
+ #endif
 -        if (m->getCollisionReaction() == Material::RESCUE)
 +        if (false && m->getCollisionReaction() == Material::RESCUE)
          {
              RescueAnimation::create(this);
-         }
-
+             m_last_factor_engine_sound = 0.0f;
 diff --git a/src/karts/kart_properties.cpp b/src/karts/kart_properties.cpp
 --- a/src/karts/kart_properties.cpp
 +++ b/src/karts/kart_properties.cpp
-@@ -1184,19 +1184,19 @@ float KartProperties::getNitroEngineForce() const
+@@ -1150,19 +1150,19 @@ float KartProperties::getNitroDuration() const
+ // ----------------------------------------------------------------------------
+ float KartProperties::getNitroEngineForce() const
  {
 -    return m_cached_characteristic->getNitroEngineForce();
 +    return m_cached_characteristic->getNitroEngineForce()*2;
- }
+ }  // getNitroEngineForce
 
+ // ----------------------------------------------------------------------------
  float KartProperties::getNitroEngineMult() const
  {
 -    return m_cached_characteristic->getNitroEngineMult();
 +    return m_cached_characteristic->getNitroEngineMult()*2;
- }
+ }  // getNitroEngineMult
 
+ // ----------------------------------------------------------------------------
  float KartProperties::getNitroConsumption() const
  {
 -    return m_cached_characteristic->getNitroConsumption();
 +    return m_cached_characteristic->getNitroConsumption()*0;
- }
-@@ -1226,7 +1226,7 @@ float KartProperties::getNitroMax() const
+ }  // getNitroConsumption
+
+ // ----------------------------------------------------------------------------
+@@ -1192,7 +1192,7 @@ float KartProperties::getNitroFadeOutTime() const
+ // ----------------------------------------------------------------------------
+ float KartProperties::getNitroMax() const
  {
 -    return m_cached_characteristic->getNitroMax();
 +    return m_cached_characteristic->getNitroMax()*64;
- }
+ }  // getNitroMax
 
+ // ----------------------------------------------------------------------------
 diff --git a/src/karts/max_speed.cpp b/src/karts/max_speed.cpp
 --- a/src/karts/max_speed.cpp
 +++ b/src/karts/max_speed.cpp
 @@ -55,7 +55,7 @@ MaxSpeed::MaxSpeed(AbstractKart *kart)
- {
-     m_kart = kart;
+     // update() is called.
+     m_add_engine_force  = 0;
+     // This can be used if command line option -N is used
 -    m_current_max_speed = 0;
 +    m_current_max_speed = 340282346638528859811704183484516925440.0f;//0;
-     m_increase_speed = 0;
-     m_speed_fraction = 1.0f;
- }
-@@ -65,7 +65,7 @@ void MaxSpeed::reset()
+ }   // MaxSpeed
+
+ // ----------------------------------------------------------------------------
+@@ -65,7 +65,7 @@ MaxSpeed::MaxSpeed(AbstractKart *kart)
+  */
+ void MaxSpeed::reset()
  {
 -    m_current_max_speed = m_kart->getKartProperties()->getEngineMaxSpeed();
 +    m_current_max_speed = 340282346638528859811704183484516925440.0f;//m_kart->getKartProperties()->getEngineMaxSpeed();
-     m_increase_speed = 0;
-     m_speed_fraction = 1.0f;
- }
-@@ -413,7 +413,7 @@ void MaxSpeed::update(float dt)
- {
+     m_min_speed         = -1.0f;
+
+     for(unsigned int i=MS_DECREASE_MIN; i<MS_DECREASE_MAX; i++)
+@@ -414,7 +414,7 @@ void MaxSpeed::update(int ticks)
+     }
+
+     m_add_engine_force  = 0;
 -    m_current_max_speed = m_kart->getKartProperties()->getEngineMaxSpeed();
 +    m_current_max_speed = 340282346638528859811704183484516925440.0f;//_kart->getKartProperties()->getEngineMaxSpeed();
-     // Remaining function unchanged
- }
 
+     // Then add the speed increase from each category
+     // ----------------------------------------------
 diff --git a/src/tracks/track.hpp b/src/tracks/track.hpp
 --- a/src/tracks/track.hpp
 +++ b/src/tracks/track.hpp
-@@ -669,7 +669,7 @@ public:
+@@ -666,7 +666,7 @@ public:
+     bool isInternal() const { return m_internal; }
+     // ------------------------------------------------------------------------
+     /** Returns true if auto rescue is enabled. */
 -    bool isAutoRescueEnabled() const { return m_enable_auto_rescue; }
 +    bool isAutoRescueEnabled() const { return false/*m_enable_auto_rescue*/; }
+     // ------------------------------------------------------------------------
+     /** True if push back of karts towards the track should be enabled. */
+     bool isPushBackEnabled() const { return m_enable_push_back; }
