@@ -1,5 +1,5 @@
 recipe:
-  name: Freethewhale continuation of Kimden fork! (server only) (git) - Staging
+  name: Freethewhale continuation of Kimden fork! (server only) (git) - Unstable
   stk-version: 1
 
 assets:
@@ -12,7 +12,7 @@ code:
   url: https://github.com/matahina/stk-code.git
   release: none
   commit: none
-  branch: freethewhale-1x-staging
+  branch: freethewhale-1x-unstable
   patch: none
   updatable: yes
   cmake_options: -DCMAKE_C_FLAGS_RELWITHDEBINFO="-O3 -DNDEBUG -march=native" -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O3 -DNDEBUG -march=native" -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON -DOpenGL_GL_PREFERENCE=GLVND -DBUILD_RECORDER=off -DENABLE_VULKAN=ON -DSERVER_ONLY=ON -DUSE_SQLITE3=ON -DWEB_SUPPORT=ON -DUSE_RECORDS_V2=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
