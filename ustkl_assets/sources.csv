@@ -21,3 +21,5 @@ FF Special 2023-01-21,1,2301,1,https://raw.githubusercontent.com/matahina/Miscel
 standard,2,STK2,2,https://raw.githubusercontent.com/Alayan-stk-2/stk-code/BalanceSTK2/data/powerup.xml,https://raw.githubusercontent.com/Alayan-stk-2/stk-code/BalanceSTK2/data/kart_characteristics.xml
 standard,2,STK2_TME,3,https://raw.githubusercontent.com/Nomagno/stk-code/tyre2X/data/powerup.xml,https://raw.githubusercontent.com/Nomagno/stk-code/tyre2X/data/kart_characteristics.xml
 experimental,2,STK2_TME_EXP,3,standard,https://raw.githubusercontent.com/matahina/Miscellaneous-STK-files/main/matahina_tyres/kart_EXP.xml
+Halloween-rebby,1,halloween,1,https://freethewhale.ovh/rebalanced.xml,https://raw.githubusercontent.com/matahina/Miscellaneous-STK-files/main/kimden_powerups/kart_characteristics_halloween.xml
+Halloween-standard,1,halloween,1,standard,https://raw.githubusercontent.com/matahina/Miscellaneous-STK-files/main/kimden_powerups/kart_characteristics_halloween.xml
